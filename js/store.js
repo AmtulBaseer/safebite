@@ -28,20 +28,27 @@ function writeData(key, value) {
 // ---- Profile (the customer's allergies) ----
 
 function saveProfile(profile) {
-  // profile looks like: { name: "Sara", allergens: ["peanut", "okra"] }
+  // profile looks like: { name: "Sara", allergens: ["peanut", "soy"] }
   // savedAt lets pages tell "never saved" apart from "saved with no allergies"
   profile.savedAt = new Date().toISOString();
   writeData(PROFILE_KEY, profile);
 }
 
+// knownAllergens() (in data.js) skips old ids like "okra" so nothing breaks
 function getProfile() {
-  return readData(PROFILE_KEY, { name: "", allergens: [] });
+  const profile = readData(PROFILE_KEY, { name: "", allergens: [] });
+  profile.allergens = knownAllergens(profile.allergens);
+  return profile;
 }
 
 // ---- Orders ----
 
 function getOrders() {
-  return readData(ORDERS_KEY, []);
+  const orders = readData(ORDERS_KEY, []);
+  orders.forEach(function (o) {
+    o.allergens = knownAllergens(o.allergens);
+  });
+  return orders;
 }
 
 // Next short order id like "#1042" (one more than the biggest so far)

@@ -22,7 +22,7 @@ function getDish(id) {
   return RESTAURANT.menu.find(function (d) { return d.id === id; });
 }
 
-// "peanut", "okra" -> "Peanut, Okra"
+// "peanut", "soy" -> "Peanut, Soy"
 function allergenNames(ids) {
   return ids.map(function (id) { return getAllergen(id).name; }).join(", ");
 }

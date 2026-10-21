@@ -1,10 +1,15 @@
 // SafeBite - shared data (allergens + fake restaurant menu)
 
 // Small inline SVG icons for allergens that don't have an emoji
-const OKRA_SVG =
+// Soy bean pod with three beans
+const SOY_SVG =
   '<svg viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true">' +
-  '<path d="M6 20 C4 14 10 6 17 4 L19 6 C18 13 11 20 6 20 Z" fill="#43A047"/>' +
-  '<path d="M17 4 L20 1" stroke="#2E7D32" stroke-width="2" stroke-linecap="round"/>' +
+  '<g transform="rotate(-35 12 12)">' +
+  '<rect x="0.5" y="6.5" width="23" height="11" rx="5.5" fill="#7CB342" stroke="#33691E" stroke-width="1.2"/>' +
+  '<circle cx="6" cy="12" r="3.2" fill="#DCEDC8"/>' +
+  '<circle cx="12" cy="12" r="3.2" fill="#DCEDC8"/>' +
+  '<circle cx="18" cy="12" r="3.2" fill="#DCEDC8"/>' +
+  '</g>' +
   '</svg>';
 
 const SESAME_SVG =
@@ -21,7 +26,7 @@ const ALLERGENS = [
   { id: "dairy",     name: "Dairy",     color: "#1E88E5", icon: "🥛" },
   { id: "egg",       name: "Egg",       color: "#FDD835", icon: "🥚" },
   { id: "gluten",    name: "Gluten",    color: "#8D6E63", icon: "🌾" },
-  { id: "okra",      name: "Okra",      color: "#43A047", icon: OKRA_SVG },
+  { id: "soy",       name: "Soy",       color: "#43A047", icon: SOY_SVG },
   { id: "sesame",    name: "Sesame",    color: "#8E24AA", icon: SESAME_SVG },
   { id: "shellfish", name: "Shellfish", color: "#EC407A", icon: "🦐" }
 ];
@@ -29,6 +34,11 @@ const ALLERGENS = [
 // Find one allergen by its id
 function getAllergen(id) {
   return ALLERGENS.find(function (a) { return a.id === id; });
+}
+
+// Drop allergen ids we don't have any more (e.g. old "okra" data)
+function knownAllergens(ids) {
+  return (ids || []).filter(function (id) { return getAllergen(id); });
 }
 
 // Our made-up restaurant
@@ -45,10 +55,10 @@ const RESTAURANT = {
     },
     {
       id: "d2",
-      name: "Bamia Lamb Stew",
-      description: "Slow-cooked lamb and okra in a tomato and garlic sauce.",
-      price: 45,
-      allergens: ["okra"]
+      name: "Beef & Broccoli Stir-Fry",
+      description: "Wok-fried beef and broccoli in a ginger soy sauce.",
+      price: 44,
+      allergens: ["soy", "gluten"]
     },
     {
       id: "d3",
@@ -66,10 +76,10 @@ const RESTAURANT = {
     },
     {
       id: "d5",
-      name: "Falafel Wrap",
-      description: "Crispy falafel, pickles and tahini sauce in a warm wrap.",
-      price: 28,
-      allergens: ["gluten", "sesame"]
+      name: "Crispy Tofu Rice Bowl",
+      description: "Golden tofu, edamame and rice with a sesame-soy glaze.",
+      price: 36,
+      allergens: ["soy", "sesame"]
     },
     {
       id: "d6",

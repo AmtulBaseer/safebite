@@ -17,7 +17,7 @@ guarantee the kitchen sees it or acts on it.
 4. Staff press **Confirm & Send** (and say whether the food was prepared in a
    separate area), and the customer gets a confirmation on their phone.
 
-The 8 allergens: Peanut, Tree Nuts, Dairy, Egg, Gluten, Okra, Sesame, Shellfish.
+The 8 allergens: Peanut, Tree Nuts, Dairy, Egg, Gluten, Soy, Sesame, Shellfish.
 
 ## How to use the demo
 
