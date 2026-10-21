@@ -116,11 +116,11 @@ main {
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
   cursor: pointer;
-  /* not selected = greyed out */
-  filter: grayscale(1);
-  opacity: 0.35;
-  transition: filter 0.2s, opacity 0.2s, box-shadow 0.2s, transform 0.1s;
+  /* full colour, slightly raised */
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.2);
+  transition: filter 0.2s, opacity 0.2s, box-shadow 0.15s, transform 0.15s;
 }
 
 .allergen-btn:active {
@@ -139,12 +139,31 @@ main {
   font-size: 1.6rem;
 }
 
-/* Selected (or blinking on the station) = full colour with a glow */
-.allergen-btn.selected,
-.allergen-btn.blink {
-  filter: none;
-  opacity: 1;
-  box-shadow: 0 0 0 3px white, 0 0 16px 4px var(--c);
+/* Selected (customer page) = darker shade, pressed in, with a checkmark */
+.allergen-btn.selected {
+  transform: translateY(3px);
+  box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.45);
+}
+
+/* Dark layer on top makes the colour darker */
+.allergen-btn.selected::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: rgba(0, 0, 0, 0.4);
+}
+
+/* White checkmark in the top-right corner */
+.allergen-btn.selected::after {
+  content: "✓";
+  position: absolute;
+  top: 5px;
+  right: 8px;
+  color: white;
+  font-size: 1.1rem;
+  font-weight: bold;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 /* Blinking effect for the kitchen station: bright glow on/off once a second */
