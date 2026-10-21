@@ -14,6 +14,11 @@ const menuList = document.getElementById("menu-list");
 const cartBar = document.getElementById("cart-bar");
 const otherInput = document.getElementById("other-input");
 
+// Which restaurant's menu to show. There's no restaurant list yet, so use
+// customer.html?restaurant=r3 to pick one, otherwise the first restaurant.
+const params = new URLSearchParams(window.location.search);
+const currentRestaurant = getRestaurant(params.get("restaurant")) || RESTAURANTS[0];
+
 // ---------- Small helpers ----------
 
 function formatPrice(amount) {
@@ -21,7 +26,7 @@ function formatPrice(amount) {
 }
 
 function getDish(id) {
-  return RESTAURANT.menu.find(function (d) { return d.id === id; });
+  return currentRestaurant.menu.find(function (d) { return d.id === id; });
 }
 
 // "peanut", "soy" -> ["Peanut", "Soy"]
@@ -165,7 +170,7 @@ function drawMenu() {
   const profile = getProfile();
   menuList.innerHTML = "";
 
-  RESTAURANT.menu.forEach(function (dish) {
+  currentRestaurant.menu.forEach(function (dish) {
     // Allergens in this dish that the customer is allergic to
     const danger = dish.allergens.filter(function (id) {
       return profile.allergens.includes(id);
@@ -291,6 +296,8 @@ function sendOrder() {
   const profile = getProfile();
   const order = placeOrder({
     id: newOrderId(),
+    restaurantId: currentRestaurant.id,
+    restaurantName: currentRestaurant.name,
     items: cart.map(function (i) {
       const dish = getDish(i.dishId);
       return { dishId: dish.id, name: dish.name, price: dish.price, qty: i.qty };
@@ -406,8 +413,9 @@ onChange(function (key) {
 
 // ---------- Start ----------
 
-document.getElementById("restaurant-name").textContent = RESTAURANT.name;
-document.getElementById("restaurant-location").textContent = RESTAURANT.location;
+document.getElementById("restaurant-name").textContent = currentRestaurant.name;
+document.getElementById("restaurant-location").textContent =
+  currentRestaurant.cuisine + " · " + currentRestaurant.emirate;
 
 const saved = getProfile();
 selected = saved.allergens.slice();

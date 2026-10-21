@@ -48,7 +48,8 @@ separate area" switch. In this web version the device is drawn with HTML and CSS
 - Plain HTML, CSS and JavaScript. No frameworks or build tools.
 - Data is saved in the browser's `localStorage` (`js/store.js`). Open tabs are
   kept in sync with the `storage` event and `BroadcastChannel`.
-- The menu and allergens are in `js/data.js`. The restaurant "Spice Souk Kitchen" is made up.
+- The allergens, the 7 emirates and 14 made-up restaurants (with their menus) are
+  in `js/data.js`. All restaurant names are invented.
 - There is no real server, so the customer and the station only see each other
   when they're open in the same browser.
 
@@ -61,6 +62,6 @@ separate area" switch. In this web version the device is drawn with HTML and CSS
 | `station.html` | Kitchen Allergen Station |
 | `demo.html` | Both side by side, for presenting |
 | `css/style.css` | All styles |
-| `js/data.js` | Allergens and menu |
+| `js/data.js` | Allergens, emirates, restaurants and menus |
 | `js/store.js` | Saving data and syncing tabs |
 | `js/customer.js`, `js/station.js` | Page logic |
