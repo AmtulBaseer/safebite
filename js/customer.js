@@ -14,10 +14,10 @@ const menuList = document.getElementById("menu-list");
 const cartBar = document.getElementById("cart-bar");
 const otherInput = document.getElementById("other-input");
 
-// Which restaurant's menu to show. There's no restaurant list yet, so use
-// customer.html?restaurant=r3 to pick one, otherwise the first restaurant.
+// The restaurant whose menu is open. customer.html?restaurant=r3 opens one directly.
 const params = new URLSearchParams(window.location.search);
-const currentRestaurant = getRestaurant(params.get("restaurant")) || RESTAURANTS[0];
+let currentRestaurant = getRestaurant(params.get("restaurant")) || RESTAURANTS[0];
+let sortBy = "safe";      // restaurant list order: "safe" or "rating"
 
 // ---------- Small helpers ----------
 
@@ -70,6 +70,15 @@ function otherAllergiesIn(dish, others) {
       return ing.toLowerCase().includes(allergy.toLowerCase());
     });
   });
+}
+
+// Names of everything in this dish the customer is allergic to (empty = safe)
+function dishWarnings(dish, profile) {
+  const main = dish.allergens.filter(function (id) {
+    return profile.allergens.includes(id);
+  });
+  const other = otherAllergiesIn(dish, profile.otherAllergies);
+  return allergenNames(main).concat(other.map(capitalize));
 }
 
 // ---------- Screen 1: allergy profile ----------
@@ -164,20 +173,123 @@ document.getElementById("other-form").addEventListener("submit", function (e) {
   drawOtherChips();
 });
 
-// ---------- Screen 2: menu ----------
+// ---------- Screen 2: restaurant list ----------
+
+// Small badge or grey note about the Allergen Station
+function stationHtml(restaurant) {
+  if (restaurant.hasStation) {
+    return '<span class="station-badge">🛡 Allergen Station</span>';
+  }
+  return '<p class="no-station">No allergen station. Allergy info may be limited</p>';
+}
+
+// "✓ 4 of 6 dishes safe for you" (green) or "⚠ Only 1 safe dish" (orange)
+function safetySummary(restaurant, profile) {
+  const total = restaurant.menu.length;
+  const safe = restaurant.menu.filter(function (dish) {
+    return dishWarnings(dish, profile).length === 0;
+  }).length;
+
+  if (safe === total) {
+    return { safe: safe, cls: "safe-good", text: "✓ All " + total + " dishes safe for you" };
+  }
+  if (safe >= total / 2) {
+    return { safe: safe, cls: "safe-good", text: "✓ " + safe + " of " + total + " dishes safe for you" };
+  }
+  if (safe === 0) {
+    return { safe: safe, cls: "safe-none", text: "⚠ No safe dishes for you" };
+  }
+  return { safe: safe, cls: "safe-few", text: "⚠ Only " + safe + " safe dish" + (safe === 1 ? "" : "es") };
+}
+
+// Row of emirate chips at the top
+function drawEmirateChips() {
+  const box = document.getElementById("emirate-chips");
+  box.innerHTML = "";
+
+  EMIRATES.forEach(function (emirate) {
+    const chip = document.createElement("button");
+    chip.className = "emirate-chip" + (emirate === getEmirate() ? " active" : "");
+    chip.textContent = emirate;
+    chip.addEventListener("click", function () {
+      saveEmirate(emirate);
+      drawEmirateChips();
+      drawRestaurantList();
+    });
+    box.appendChild(chip);
+  });
+}
+
+function drawRestaurantList() {
+  const profile = getProfile();
+  const list = document.getElementById("restaurant-list");
+  list.innerHTML = "";
+
+  // Only this emirate, with the allergy summary worked out for each
+  const restaurants = RESTAURANTS
+    .filter(function (r) { return r.emirate === getEmirate(); })
+    .map(function (r) { return { r: r, summary: safetySummary(r, profile) }; });
+
+  restaurants.sort(function (a, b) {
+    if (sortBy === "safe" && b.summary.safe !== a.summary.safe) {
+      return b.summary.safe - a.summary.safe;
+    }
+    return b.r.rating - a.r.rating;
+  });
+
+  document.getElementById("restaurant-count").textContent =
+    restaurants.length + " restaurants in " + getEmirate();
+
+  restaurants.forEach(function (item) {
+    const r = item.r;
+    const card = document.createElement("a");
+    card.href = "#";
+    card.className = "card restaurant-card";
+    card.innerHTML =
+      '<span class="logo" style="background:' + r.logoColor + '">' + r.logo + "</span>" +
+      '<div class="info">' +
+        '<div class="restaurant-top"><h3>' + r.name + "</h3>" +
+        '<span class="rating">★ ' + r.rating.toFixed(1) + "</span></div>" +
+        '<p class="meta">' + r.cuisine + " · " + r.deliveryTime + " · " + r.priceLevel + "</p>" +
+        '<p class="desc">' + r.description + "</p>" +
+        '<p class="safety ' + item.summary.cls + '">' + item.summary.text + "</p>" +
+        stationHtml(r) +
+      "</div>";
+
+    card.addEventListener("click", function (e) {
+      e.preventDefault();
+      openRestaurant(r);
+    });
+    list.appendChild(card);
+  });
+}
+
+// Open a restaurant's menu (the cart only holds one restaurant at a time)
+function openRestaurant(restaurant) {
+  if (cart.length > 0 && restaurant.id !== currentRestaurant.id) {
+    if (!confirm("Your cart has items from " + currentRestaurant.name + ". Clear it and start a new order?")) {
+      return;
+    }
+    cart = [];
+  }
+  currentRestaurant = restaurant;
+  showScreen("menu");
+}
+
+// ---------- Screen 3: menu ----------
 
 function drawMenu() {
   const profile = getProfile();
   menuList.innerHTML = "";
 
-  currentRestaurant.menu.forEach(function (dish) {
-    // Allergens in this dish that the customer is allergic to
-    const danger = dish.allergens.filter(function (id) {
-      return profile.allergens.includes(id);
-    });
-    const otherDanger = otherAllergiesIn(dish, profile.otherAllergies);
+  document.getElementById("restaurant-name").textContent =
+    currentRestaurant.logo + " " + currentRestaurant.name;
+  document.getElementById("restaurant-location").textContent =
+    currentRestaurant.cuisine + " · " + currentRestaurant.emirate + " · " + currentRestaurant.deliveryTime;
+  document.getElementById("restaurant-station").innerHTML = stationHtml(currentRestaurant);
 
-    const warningNames = allergenNames(danger).concat(otherDanger.map(capitalize));
+  currentRestaurant.menu.forEach(function (dish) {
+    const warningNames = dishWarnings(dish, profile);
     const hasWarning = warningNames.length > 0;
 
     const card = document.createElement("div");
@@ -191,7 +303,7 @@ function drawMenu() {
 
     if (hasWarning) {
       html += '<p class="warning">⚠ Contains ' + escapeHtml(warningNames.join(", ")) +
-              " — you're allergic</p>";
+              " (you're allergic)</p>";
     }
 
     html += '<div class="dish-bottom"><div class="chips"></div>' +
@@ -316,7 +428,7 @@ function sendOrder() {
   showScreen("status");
 }
 
-// ---------- Screen 4: order status ----------
+// ---------- Screen 5: order status ----------
 
 function drawStatus() {
   const order = getOrders().find(function (o) { return o.id === lastOrderId; });
@@ -327,7 +439,7 @@ function drawStatus() {
   const hasAny = order.allergens.length > 0 || order.otherAllergies.length > 0;
 
   if (order.status === "confirmed") {
-    const area = order.separateArea ? "Yes" : "No — shared kitchen area";
+    const area = order.separateArea ? "Yes" : "No (shared kitchen area)";
     const title = hasAny
       ? "✓ Kitchen confirmed your order is safe for:"
       : "✓ Kitchen confirmed your order";
@@ -354,18 +466,23 @@ function drawStatus() {
 
 function showScreen(name) {
   currentScreen = name;
-  ["profile", "menu", "cart", "status"].forEach(function (s) {
+  ["profile", "restaurants", "menu", "cart", "status"].forEach(function (s) {
     document.getElementById(s + "-screen").classList.toggle("hidden", s !== name);
   });
 
-  // Chips row only on the menu
-  myAllergies.classList.toggle("hidden", name !== "menu");
-
-  if (name === "menu") {
+  // "Your allergies" chips on the restaurant list and the menu
+  const showChips = name === "restaurants" || name === "menu";
+  myAllergies.classList.toggle("hidden", !showChips);
+  if (showChips) {
     const profile = getProfile();
     makeChips(myChips, profile.allergens, "None", profile.otherAllergies);
-    drawMenu();
   }
+
+  if (name === "restaurants") {
+    drawEmirateChips();
+    drawRestaurantList();
+  }
+  if (name === "menu") drawMenu();
   if (name === "cart") drawCart();
   if (name === "status") drawStatus();
 
@@ -377,7 +494,7 @@ function showScreen(name) {
 
 document.getElementById("save-btn").addEventListener("click", function () {
   saveProfile({ allergens: selected.slice(), otherAllergies: otherSelected.slice() });
-  showScreen("menu");
+  showScreen("restaurants");
 });
 
 // Edit link: go back to the grid with the saved choices ticked
@@ -392,6 +509,16 @@ document.getElementById("edit-link").addEventListener("click", function (e) {
 
 cartBar.addEventListener("click", function () { showScreen("cart"); });
 
+document.getElementById("back-to-list").addEventListener("click", function (e) {
+  e.preventDefault();
+  showScreen("restaurants");
+});
+
+document.getElementById("sort-select").addEventListener("change", function () {
+  sortBy = this.value;
+  drawRestaurantList();
+});
+
 document.getElementById("back-to-menu").addEventListener("click", function (e) {
   e.preventDefault();
   showScreen("menu");
@@ -405,17 +532,15 @@ document.getElementById("new-order-btn").addEventListener("click", function () {
 
 // Listen for changes from other tabs
 onChange(function (key) {
-  // Profile changed: redraw the menu warnings
-  if (key === "safebite_profile" && currentScreen === "menu") showScreen("menu");
+  // Profile changed: redraw the warnings and safety summaries
+  if (key === "safebite_profile" && (currentScreen === "menu" || currentScreen === "restaurants")) {
+    showScreen(currentScreen);
+  }
   // Order changed (e.g. kitchen confirmed it): update the status screen
   if (key === "safebite_orders" && currentScreen === "status") drawStatus();
 });
 
 // ---------- Start ----------
-
-document.getElementById("restaurant-name").textContent = currentRestaurant.name;
-document.getElementById("restaurant-location").textContent =
-  currentRestaurant.cuisine + " · " + currentRestaurant.emirate;
 
 const saved = getProfile();
 selected = saved.allergens.slice();
@@ -427,10 +552,14 @@ const lastOrder = getOrders().find(function (o) { return o.id === lastOrderId; }
 
 if (saved.savedAt && lastOrder) {
   // Page was refreshed after ordering: show that order's status again
+  currentRestaurant = getRestaurant(lastOrder.restaurantId) || currentRestaurant;
   showScreen("status");
-} else if (saved.savedAt) {
-  // Already has a profile: skip straight to the menu
+} else if (saved.savedAt && params.get("restaurant")) {
+  // Link straight to one restaurant
   showScreen("menu");
+} else if (saved.savedAt) {
+  // Already has a profile: show the restaurant list
+  showScreen("restaurants");
 } else {
   showScreen("profile");
 }

@@ -47,14 +47,35 @@
       <button id="save-btn" class="btn btn-block">Save my allergies</button>
     </section>
 
-    <!-- Screen 2: menu -->
+    <!-- Screen 2: restaurant list -->
+    <section id="restaurants-screen" class="screen hidden">
+      <h2>Choose your emirate</h2>
+      <div id="emirate-chips" class="emirate-chips"></div>
+
+      <div class="list-header">
+        <span id="restaurant-count" class="muted"></span>
+        <label class="sort">
+          Sort by:
+          <select id="sort-select">
+            <option value="safe">Safest for me</option>
+            <option value="rating">Rating</option>
+          </select>
+        </label>
+      </div>
+
+      <div id="restaurant-list"></div>
+    </section>
+
+    <!-- Screen 3: menu of one restaurant -->
     <section id="menu-screen" class="screen hidden">
+      <a href="#" id="back-to-list" class="back-link">← All restaurants</a>
       <h2 id="restaurant-name"></h2>
       <p id="restaurant-location" class="muted"></p>
+      <div id="restaurant-station"></div>
       <div id="menu-list"></div>
     </section>
 
-    <!-- Screen 3: cart -->
+    <!-- Screen 4: cart -->
     <section id="cart-screen" class="screen hidden">
       <a href="#" id="back-to-menu" class="back-link">← Back to menu</a>
       <h2>Your cart</h2>
@@ -72,7 +93,7 @@
       <button id="place-btn" class="btn btn-block">Place order</button>
     </section>
 
-    <!-- Screen 4: order status (waiting / confirmed) -->
+    <!-- Screen 5: order status (waiting / confirmed) -->
     <section id="status-screen" class="screen hidden">
       <h2 id="status-title"></h2>
       <div id="status-box"></div>

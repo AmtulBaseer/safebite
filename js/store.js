@@ -82,10 +82,23 @@ function updateOrder(id, changes) {
   return order;
 }
 
+// ---- Chosen emirate (filters the restaurant list) ----
+
+const EMIRATE_KEY = "safebite_emirate";
+
+function saveEmirate(name) {
+  localStorage.setItem(EMIRATE_KEY, name);
+}
+
+function getEmirate() {
+  return localStorage.getItem(EMIRATE_KEY) || "Abu Dhabi";
+}
+
 // Delete all SafeBite data (used by the demo's Reset button)
 function resetAll() {
   localStorage.removeItem(PROFILE_KEY);
   localStorage.removeItem(ORDERS_KEY);
+  localStorage.removeItem(EMIRATE_KEY);
   if (channel) {
     channel.postMessage({ key: "reset" });
   }
