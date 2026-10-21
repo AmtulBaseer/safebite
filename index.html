@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SafeBite</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>">
+</head>
+<body>
+  <main class="landing">
+    <!-- Shield logo -->
+    <svg class="logo" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M12 2 L20 5 V11 C20 16.5 16.5 20.5 12 22 C7.5 20.5 4 16.5 4 11 V5 Z" fill="#00897B"/>
+      <path d="M8 12 L11 15 L16 9" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+
+    <h1>SafeBite</h1>
+    <p class="tagline">
+      Allergen info is hard to find on food delivery apps. SafeBite sends your
+      allergies straight to the kitchen, and the kitchen confirms your food is safe.
+    </p>
+
+    <!-- The 8 allergen colours, drawn by the script below -->
+    <div id="colour-strip" class="colour-strip"></div>
+
+    <div class="landing-buttons">
+      <a href="customer.html" class="btn">Customer App</a>
+      <a href="station.html" class="btn">Kitchen Station</a>
+      <a href="demo.html" class="btn btn-outline">Demo (side by side)</a>
+    </div>
+
+    <p class="muted small">Student prototype · Innovation &amp; Entrepreneurship</p>
+  </main>
+
+  <script src="js/data.js"></script>
+  <script>
+    // Little row of coloured allergen squares
+    ALLERGENS.forEach(function (a) {
+      const square = document.createElement("span");
+      square.style.background = a.color;
+      square.title = a.name;
+      document.getElementById("colour-strip").appendChild(square);
+    });
+  </script>
+</body>
+</html>

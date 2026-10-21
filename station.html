@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kitchen Allergen Station | SafeBite</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>">
+  <!-- Inside the demo page? Then hide the top bar -->
+  <script>if (window.self !== window.top) document.documentElement.classList.add("embedded");</script>
+</head>
+<body class="station-page">
+  <header class="top-bar station-bar">
+    <h1>SafeBite Kitchen</h1>
+    <a href="index.html" class="home-link">← Home</a>
+  </header>
+
+  <div class="station-wrap">
+    <!-- Ports on the left side of the device -->
+    <div class="side-ports">
+      <div><span class="port"></span>Wi-Fi</div>
+      <div><span class="port"></span>USB-C</div>
+    </div>
+
+    <div class="device">
+      <div class="device-top">
+        <!-- Small screen showing the current order -->
+        <div id="lcd" class="lcd"></div>
+
+        <div class="brand">
+          <!-- Shield icon -->
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 2 L20 5 V11 C20 16.5 16.5 20.5 12 22 C7.5 20.5 4 16.5 4 11 V5 Z" fill="#00897B"/>
+            <path d="M8 12 L11 15 L16 9" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>Allergen<br>Station</span>
+        </div>
+      </div>
+
+      <!-- 8 allergen buttons, filled in by station.js -->
+      <div id="station-grid" class="allergen-grid"></div>
+
+      <div class="device-bottom">
+        <button id="confirm-btn" class="confirm-btn">Confirm &amp; Send</button>
+
+        <div class="separate">
+          <span class="title">Prepared in separate area</span>
+          <span>No</span>
+          <label class="switch">
+            <input type="checkbox" id="separate-switch" aria-label="Prepared in separate area">
+            <span class="slider"></span>
+          </label>
+          <span>Yes</span>
+          <span id="separate-led" class="led"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Thick front edge and feet -->
+    <div class="device-front"></div>
+    <div class="feet">
+      <span class="foot"></span>
+      <span class="foot"></span>
+    </div>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/station.js"></script>
+</body>
+</html>

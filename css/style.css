@@ -1,0 +1,927 @@
+/* SafeBite - shared styles */
+
+:root {
+  /* Allergen colours */
+  --peanut: #E53935;
+  --tree-nuts: #FB8C00;
+  --dairy: #1E88E5;
+  --egg: #FDD835;
+  --gluten: #8D6E63;
+  --okra: #43A047;
+  --sesame: #8E24AA;
+  --shellfish: #EC407A;
+
+  /* App colours */
+  --primary: #00897B;
+  --primary-dark: #00695C;
+  --bg: #F7F7F5;
+  --card: #FFFFFF;
+  --text: #222222;
+  --muted: #6B6B6B;
+  --border: #E0E0E0;
+  --success: #2E7D32;
+  --warning: #F9A825;
+  --danger: #D32F2F;
+
+  --radius: 12px;
+  --shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+}
+
+/* Top bar */
+header {
+  background: var(--primary);
+  color: white;
+  padding: 16px 20px;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 1.4rem;
+}
+
+main {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px 16px;
+}
+
+/* White box used for sections, menu items, orders */
+.card {
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+/* Normal button */
+.btn {
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 18px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: var(--primary-dark);
+}
+
+.btn:disabled {
+  background: var(--border);
+  color: var(--muted);
+  cursor: not-allowed;
+}
+
+/* Grid of coloured allergen buttons (4 x 2, same layout as the station) */
+.allergen-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px 10px;
+}
+
+/* One button with its name underneath */
+.allergen-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* Square button. Its colour comes from --c, which JS sets per allergen */
+.allergen-btn {
+  width: 100%;
+  aspect-ratio: 1;
+  padding: 0;
+  border: none;
+  border-radius: 18px;
+  background: var(--c, #999);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  /* not selected = greyed out */
+  filter: grayscale(1);
+  opacity: 0.35;
+  transition: filter 0.2s, opacity 0.2s, box-shadow 0.2s, transform 0.1s;
+}
+
+.allergen-btn:active {
+  transform: scale(0.94);
+}
+
+/* White circle behind the icon so every icon shows on its colour */
+.allergen-btn .icon {
+  width: 58%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+}
+
+/* Selected (or blinking on the station) = full colour with a glow */
+.allergen-btn.selected,
+.allergen-btn.blink {
+  filter: none;
+  opacity: 1;
+  box-shadow: 0 0 0 3px white, 0 0 16px 4px var(--c);
+}
+
+/* Blinking effect for the kitchen station: bright glow on/off once a second */
+.allergen-btn.blink {
+  animation: glow-blink 1s ease-in-out infinite;
+}
+
+@keyframes glow-blink {
+  0%, 100% {
+    filter: brightness(1.15);
+    opacity: 1;
+    box-shadow: 0 0 0 3px white, 0 0 26px 10px var(--c);
+  }
+  50% {
+    filter: brightness(0.55) saturate(0.6);
+    opacity: 0.85;
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
+/* Small allergen tag shown on menu items */
+.tag {
+  display: inline-block;
+  padding: 2px 8px;
+  margin: 2px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  color: white;
+}
+
+/* Yellow is hard to read with white text */
+.tag.egg {
+  color: var(--text);
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* ---- Customer page: looks like a phone app ---- */
+
+.phone {
+  max-width: 420px;
+  min-height: 100vh;
+  margin: 0 auto;
+  background: var(--card);
+  box-shadow: var(--shadow);
+}
+
+.app-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+}
+
+.app-bar h1 {
+  font-size: 1.2rem;
+}
+
+.app-bar a {
+  color: white;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.screen {
+  padding: 20px 16px 32px;
+}
+
+.screen h2 {
+  margin: 0 0 4px;
+  font-size: 1.3rem;
+}
+
+/* Big full-width button at the bottom of a screen */
+.btn-block {
+  width: 100%;
+  margin-top: 24px;
+  padding: 14px;
+  border-radius: var(--radius);
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+/* "Your allergies" chip row */
+.my-allergies {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  margin: 12px 16px 0;
+  padding: 10px 12px;
+  background: var(--bg);
+  border-radius: var(--radius);
+}
+
+.my-allergies .label {
+  margin-right: 4px;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.my-allergies .edit {
+  margin-left: auto;
+  color: var(--primary);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+/* ---- Menu ---- */
+
+/* Leave room so the cart bar doesn't cover the last dish */
+#menu-screen {
+  padding-bottom: 90px;
+}
+
+.dish {
+  border: 2px solid transparent;
+}
+
+.dish h3 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.dish p {
+  margin: 6px 0;
+  font-size: 0.9rem;
+}
+
+.dish-top,
+.dish-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.price {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* Dish with one of the customer's allergens */
+.dish.warn {
+  border-color: var(--danger);
+}
+
+.warning {
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: #FDECEA;
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.btn-small {
+  padding: 8px 16px;
+  font-size: 0.9rem;
+}
+
+.no-allergens {
+  font-size: 0.8rem;
+  color: var(--success);
+}
+
+/* ---- Cart ---- */
+
+.cart-bar {
+  position: fixed;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 32px);
+  max-width: 388px;
+  display: flex;
+  justify-content: space-between;
+  padding: 14px 18px;
+  border: none;
+  border-radius: var(--radius);
+  background: var(--text);
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+}
+
+.back-link {
+  display: inline-block;
+  margin-bottom: 12px;
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.cart-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.cart-item .name {
+  flex: 1;
+}
+
+.qty-btn {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: white;
+  cursor: pointer;
+}
+
+.cart-total {
+  display: flex;
+  justify-content: space-between;
+  padding: 14px 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+/* Box reminding the customer what the kitchen will see */
+.kitchen-alert {
+  padding: 12px;
+  border-radius: var(--radius);
+  background: var(--bg);
+}
+
+.kitchen-alert p {
+  margin: 8px 0 0;
+  font-size: 0.9rem;
+}
+
+/* ---- Kitchen Allergen Station (the device) ---- */
+
+.station-page {
+  background: #DDE3E6;
+}
+
+/* Gives the device its 3D tilt */
+.station-wrap {
+  position: relative;
+  max-width: 760px;
+  margin: 30px auto 50px;
+  padding: 0 16px 0 70px;
+  perspective: 1400px;
+}
+
+/* Top face of the device: light body with dark rounded edge */
+.device {
+  position: relative;
+  z-index: 1;
+  padding: 22px 26px 26px;
+  border: 10px solid #37474F;
+  border-radius: 34px;
+  background: linear-gradient(180deg, #FAFAFA 0%, #E4E7EA 100%);
+  box-shadow: inset 0 3px 0 white, inset 0 -8px 14px rgba(0, 0, 0, 0.08);
+  /* tilting it back makes the wedge shape */
+  transform: rotateX(14deg);
+  transform-origin: bottom center;
+}
+
+/* Front edge = the thick end of the wedge */
+.device-front {
+  height: 28px;
+  margin: -4px 6px 0;
+  border-radius: 0 0 28px 28px;
+  background: linear-gradient(#455A64, #263238);
+}
+
+.feet {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 70px;
+}
+
+.foot {
+  width: 70px;
+  height: 10px;
+  border-radius: 0 0 8px 8px;
+  background: #1C1C1C;
+}
+
+/* Wi-Fi / USB-C labels on the left side */
+.side-ports {
+  position: absolute;
+  left: 24px;
+  top: 30%;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #546E7A;
+  text-align: center;
+}
+
+.port {
+  display: block;
+  width: 26px;
+  height: 9px;
+  margin: 0 auto 4px;
+  border: 2px solid #37474F;
+  border-radius: 5px;
+  background: #90A4AE;
+}
+
+/* Top row: small screen + brand label */
+.device-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.lcd {
+  flex: 0 1 58%;
+  min-height: 110px;
+  padding: 10px 12px;
+  border: 4px solid #263238;
+  border-radius: 10px;
+  background: #16252A;
+  color: #7CFFB2;
+  font-family: "Courier New", monospace;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  box-shadow: inset 0 0 14px rgba(0, 0, 0, 0.7);
+}
+
+.lcd .order-no {
+  font-size: 1.05rem;
+  font-weight: bold;
+}
+
+.lcd .keep-out {
+  color: #FFB74D;
+}
+
+/* Blinking cursor on the idle screen */
+.cursor {
+  animation: cursor 1s steps(1) infinite;
+}
+
+@keyframes cursor {
+  50% { opacity: 0; }
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 800;
+  font-size: 1.05rem;
+  color: #37474F;
+  text-align: right;
+  line-height: 1.1;
+}
+
+.brand svg {
+  width: 34px;
+  flex-shrink: 0;
+}
+
+/* Station buttons look like physical keys, dim when not blinking */
+.device .allergen-grid {
+  gap: 18px 14px;
+}
+
+.device .allergen-btn {
+  cursor: default;
+  filter: brightness(0.55) saturate(0.6);
+  opacity: 0.85;
+  box-shadow: inset 0 -5px 0 rgba(0, 0, 0, 0.25), 0 3px 5px rgba(0, 0, 0, 0.2);
+}
+
+.device .allergen-btn:active {
+  transform: none;
+}
+
+.device .allergen-item {
+  color: #37474F;
+}
+
+/* Bottom row: Confirm button + separate area switch */
+.device-bottom {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-top: 26px;
+}
+
+.confirm-btn {
+  padding: 18px 30px;
+  border: none;
+  border-radius: 16px;
+  background: linear-gradient(#4CAF50, #2E7D32);
+  color: white;
+  font-size: 1.15rem;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: inset 0 -5px 0 rgba(0, 0, 0, 0.25), 0 3px 6px rgba(0, 0, 0, 0.25);
+}
+
+.separate {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #37474F;
+}
+
+.separate .title {
+  max-width: 90px;
+  line-height: 1.2;
+}
+
+/* Toggle switch made from a checkbox */
+.switch {
+  position: relative;
+  width: 50px;
+  height: 26px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  inset: 0;
+  border-radius: 26px;
+  background: #90A4AE;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.slider::before {
+  content: "";
+  position: absolute;
+  left: 3px;
+  top: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: white;
+  transition: transform 0.2s;
+}
+
+.switch input:checked + .slider {
+  background: var(--success);
+}
+
+.switch input:checked + .slider::before {
+  transform: translateX(24px);
+}
+
+/* Small light: red when "No", glows green when "Yes" */
+.led {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #B71C1C;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+
+.led.on {
+  background: #4CFF6A;
+  box-shadow: 0 0 8px 3px rgba(76, 255, 106, 0.7);
+}
+
+/* Big tick on the station screen after Confirm & Send */
+.lcd-confirmed {
+  margin: 14px 0 6px;
+  font-size: 1.6rem;
+  font-weight: bold;
+}
+
+/* Smaller screens: shrink the device a bit */
+@media (max-width: 600px) {
+  .station-wrap {
+    padding-left: 50px;
+  }
+  .side-ports {
+    left: 4px;
+  }
+  .device {
+    padding: 16px 14px 18px;
+    border-width: 8px;
+  }
+  .device-top {
+    flex-direction: column-reverse;
+  }
+  .lcd {
+    width: 100%;
+  }
+  .device .allergen-btn .icon {
+    font-size: 1.2rem;
+  }
+  .feet {
+    padding: 0 40px;
+  }
+}
+
+/* ---- Customer order status ---- */
+
+.status-waiting {
+  text-align: center;
+}
+
+.status-waiting p {
+  margin: 8px 0;
+}
+
+/* Three bouncing dots */
+.loader {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin: 10px 0 16px;
+}
+
+.loader span {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--primary);
+  animation: bounce 1.2s infinite ease-in-out;
+}
+
+.loader span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.loader span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes bounce {
+  0%, 80%, 100% { transform: scale(0.5); opacity: 0.4; }
+  40% { transform: scale(1); opacity: 1; }
+}
+
+/* Green "kitchen confirmed" card */
+.status-ok {
+  border: 2px solid var(--success);
+  background: #E8F5E9;
+}
+
+.status-ok .ok-title {
+  margin: 0 0 10px;
+  color: var(--success);
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+
+.status-ok p {
+  margin: 12px 0 0;
+}
+
+/* ---- Top bar with "← Home" link (station + demo) ---- */
+
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+}
+
+.top-bar h1 {
+  font-size: 1.2rem;
+}
+
+.home-link {
+  color: white;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Pages shown inside demo.html hide their own navigation */
+.embedded .home-link,
+.embedded .station-bar {
+  display: none;
+}
+
+/* station.js scales the device down to fit the demo frame */
+.embedded .station-wrap {
+  margin-top: 16px;
+  transform-origin: top center;
+}
+
+.embedded .station-page {
+  overflow: hidden;
+}
+
+.embedded .phone {
+  box-shadow: none;
+}
+
+.small {
+  font-size: 0.8rem;
+}
+
+/* ---- Landing page ---- */
+
+.landing {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 60px 20px 30px;
+  text-align: center;
+}
+
+.landing .logo {
+  width: 72px;
+}
+
+.landing h1 {
+  margin: 4px 0 8px;
+  font-size: 2.4rem;
+  color: var(--primary-dark);
+}
+
+.tagline {
+  margin: 0 0 20px;
+  font-size: 1.05rem;
+}
+
+.colour-strip {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+}
+
+.colour-strip span {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+}
+
+.landing-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 32px 0;
+}
+
+a.btn {
+  display: block;
+  padding: 14px;
+  border-radius: var(--radius);
+  text-align: center;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.btn-outline {
+  border: 2px solid var(--primary);
+  background: white;
+  color: var(--primary);
+}
+
+.btn-outline:hover {
+  background: #E0F2F1;
+}
+
+/* ---- Demo page (both screens side by side) ---- */
+
+.demo-page {
+  background: #263238;
+}
+
+.btn-reset {
+  margin-right: 14px;
+  padding: 6px 12px;
+  border: 1px solid white;
+  border-radius: 8px;
+  background: transparent;
+  color: white;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.btn-reset:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.demo-layout {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 28px;
+  padding: 16px 20px 24px;
+}
+
+.demo-label {
+  margin: 0 0 8px;
+  color: #B0BEC5;
+  font-size: 0.8rem;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Black phone with rounded corners around the customer app */
+.phone-frame {
+  position: relative;
+  width: 390px;
+  height: min(800px, calc(100vh - 110px));
+  min-height: 560px;
+  padding: 12px;
+  border-radius: 46px;
+  background: #111;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+/* Little notch at the top */
+.phone-frame::before {
+  content: "";
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 110px;
+  height: 22px;
+  border-radius: 0 0 14px 14px;
+  background: #111;
+}
+
+.phone-frame iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  border-radius: 34px;
+  background: white;
+}
+
+.station-col {
+  flex: 1;
+  max-width: 880px;
+}
+
+.station-frame {
+  width: 100%;
+  height: min(800px, calc(100vh - 110px));
+  min-height: 560px;
+  border: 0;
+  border-radius: 16px;
+  background: #DDE3E6;
+}
+
+/* Narrow screens: stack the phone above the station */
+@media (max-width: 900px) {
+  .demo-layout {
+    flex-direction: column;
+    align-items: center;
+  }
+  .station-col {
+    width: 100%;
+  }
+  .phone-frame {
+    width: min(390px, 100%);
+  }
+}

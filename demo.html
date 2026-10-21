@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Demo | SafeBite</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>">
+</head>
+<body class="demo-page">
+  <header class="top-bar">
+    <h1>SafeBite Demo</h1>
+    <div>
+      <button id="reset-btn" class="btn-reset">Reset demo</button>
+      <a href="index.html" class="home-link">← Home</a>
+    </div>
+  </header>
+
+  <div class="demo-layout">
+    <!-- Left: customer app inside a phone -->
+    <div class="demo-col">
+      <p class="demo-label">Customer phone</p>
+      <div class="phone-frame">
+        <iframe id="customer-frame" src="customer.html" title="Customer app"></iframe>
+      </div>
+    </div>
+
+    <!-- Right: kitchen station -->
+    <div class="demo-col station-col">
+      <p class="demo-label">Restaurant kitchen</p>
+      <iframe id="station-frame" class="station-frame" src="station.html" title="Kitchen station"></iframe>
+    </div>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/store.js"></script>
+  <script>
+    // Reset: wipe all SafeBite data and reload both screens
+    document.getElementById("reset-btn").addEventListener("click", function () {
+      resetAll();
+      document.getElementById("customer-frame").contentWindow.location.reload();
+      document.getElementById("station-frame").contentWindow.location.reload();
+    });
+  </script>
+</body>
+</html>

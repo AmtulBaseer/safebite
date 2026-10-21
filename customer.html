@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Customer | SafeBite</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>">
+  <!-- Inside the demo page? Then hide the Home link -->
+  <script>if (window.self !== window.top) document.documentElement.classList.add("embedded");</script>
+</head>
+<body>
+  <div class="phone">
+    <header class="app-bar">
+      <h1>SafeBite</h1>
+      <a href="index.html" class="home-link">← Home</a>
+    </header>
+
+    <!-- Saved allergies, shown at the top once a profile exists -->
+    <div id="my-allergies" class="my-allergies hidden">
+      <span class="label">Your allergies:</span>
+      <span id="my-chips"></span>
+      <a href="#" id="edit-link" class="edit">Edit</a>
+    </div>
+
+    <!-- Screen 1: pick allergies -->
+    <section id="profile-screen" class="screen hidden">
+      <h2>What are you allergic to?</h2>
+      <p class="muted">Tap everything that applies. The kitchen will see these same buttons light up.</p>
+
+      <div id="allergen-grid" class="allergen-grid"></div>
+
+      <p id="selected-count" class="muted"></p>
+      <button id="save-btn" class="btn btn-block">Save my allergies</button>
+    </section>
+
+    <!-- Screen 2: menu -->
+    <section id="menu-screen" class="screen hidden">
+      <h2 id="restaurant-name"></h2>
+      <p id="restaurant-location" class="muted"></p>
+      <div id="menu-list"></div>
+    </section>
+
+    <!-- Screen 3: cart -->
+    <section id="cart-screen" class="screen hidden">
+      <a href="#" id="back-to-menu" class="back-link">← Back to menu</a>
+      <h2>Your cart</h2>
+      <div id="cart-list"></div>
+      <div class="cart-total">
+        <span>Total</span>
+        <span id="cart-total"></span>
+      </div>
+
+      <div class="kitchen-alert">
+        <div id="cart-chips"></div>
+        <p id="cart-alert-text"></p>
+      </div>
+
+      <button id="place-btn" class="btn btn-block">Place order</button>
+    </section>
+
+    <!-- Screen 4: order status (waiting / confirmed) -->
+    <section id="status-screen" class="screen hidden">
+      <h2 id="status-title"></h2>
+      <div id="status-box"></div>
+      <button id="new-order-btn" class="btn btn-block">Back to menu</button>
+    </section>
+
+    <!-- Cart bar, stuck to the bottom of the screen -->
+    <button id="cart-bar" class="cart-bar hidden">
+      <span id="cart-bar-text"></span>
+      <span>View cart ›</span>
+    </button>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/customer.js"></script>
+</body>
+</html>
