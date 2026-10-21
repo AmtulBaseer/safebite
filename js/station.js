@@ -60,7 +60,15 @@ function render() {
   if (order.allergens.length > 0) {
     const names = order.allergens.map(function (id) { return getAllergen(id).name; });
     html += '<div class="keep-out">⚠ KEEP OUT: ' + names.join(", ").toUpperCase() + "</div>";
-  } else {
+  }
+
+  // Typed allergies have no button, so they blink on the screen instead
+  if (order.otherAllergies.length > 0) {
+    const others = order.otherAllergies.map(capitalize).join(", ");
+    html += '<div class="also-avoid">⚠ Also avoid: ' + escapeHtml(others) + "</div>";
+  }
+
+  if (order.allergens.length === 0 && order.otherAllergies.length === 0) {
     html += "<div>No allergies</div>";
   }
 

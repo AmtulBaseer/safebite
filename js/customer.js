@@ -1,6 +1,7 @@
 // SafeBite - customer page
 
 let selected = [];        // allergen ids the customer has tapped
+let otherSelected = [];   // typed allergies like "avocado"
 let cart = [];            // items like { dishId: "d1", qty: 2 }
 let currentScreen = "";
 let lastOrderId = null;   // the order shown on the status screen
@@ -11,6 +12,7 @@ const myAllergies = document.getElementById("my-allergies");
 const myChips = document.getElementById("my-chips");
 const menuList = document.getElementById("menu-list");
 const cartBar = document.getElementById("cart-bar");
+const otherInput = document.getElementById("other-input");
 
 // ---------- Small helpers ----------
 
@@ -22,16 +24,17 @@ function getDish(id) {
   return RESTAURANT.menu.find(function (d) { return d.id === id; });
 }
 
-// "peanut", "soy" -> "Peanut, Soy"
+// "peanut", "soy" -> ["Peanut", "Soy"]
 function allergenNames(ids) {
-  return ids.map(function (id) { return getAllergen(id).name; }).join(", ");
+  return ids.map(function (id) { return getAllergen(id).name; });
 }
 
-// Fill a box with coloured allergen chips
-function makeChips(container, ids, emptyText) {
+// Fill a box with coloured allergen chips, plus grey chips for other allergies
+function makeChips(container, ids, emptyText, others) {
+  others = others || [];
   container.innerHTML = "";
 
-  if (ids.length === 0) {
+  if (ids.length === 0 && others.length === 0) {
     container.innerHTML = '<span class="no-allergens">' + emptyText + "</span>";
     return;
   }
@@ -44,6 +47,23 @@ function makeChips(container, ids, emptyText) {
     chip.style.background = a.color;
     chip.textContent = a.name;
     container.appendChild(chip);
+  });
+
+  others.forEach(function (name) {
+    const chip = document.createElement("span");
+    chip.className = "tag other";
+    chip.textContent = capitalize(name);
+    container.appendChild(chip);
+  });
+}
+
+// Which of my other allergies are in this dish? (case-insensitive,
+// "peanut" also matches "peanut sauce")
+function otherAllergiesIn(dish, others) {
+  return others.filter(function (allergy) {
+    return dish.ingredients.some(function (ing) {
+      return ing.toLowerCase().includes(allergy.toLowerCase());
+    });
   });
 }
 
@@ -84,6 +104,7 @@ function drawGrid() {
   });
 
   updateCount();
+  drawOtherChips();
 }
 
 function setButtonState(btn, isOn) {
@@ -99,28 +120,73 @@ function updateCount() {
   }
 }
 
+// Grey chips with an × for the typed allergies
+function drawOtherChips() {
+  const box = document.getElementById("other-chips");
+  box.innerHTML = "";
+
+  otherSelected.forEach(function (name) {
+    const chip = document.createElement("span");
+    chip.className = "tag other";
+    chip.textContent = capitalize(name) + " ";
+
+    const remove = document.createElement("button");
+    remove.className = "chip-remove";
+    remove.textContent = "×";
+    remove.setAttribute("aria-label", "Remove " + name);
+    remove.addEventListener("click", function () {
+      otherSelected = otherSelected.filter(function (n) { return n !== name; });
+      drawOtherChips();
+    });
+
+    chip.appendChild(remove);
+    box.appendChild(chip);
+  });
+}
+
+// Add button (or Enter). "kiwi, mustard" adds both.
+document.getElementById("other-form").addEventListener("submit", function (e) {
+  e.preventDefault();
+
+  otherInput.value.split(",").forEach(function (text) {
+    const name = text.trim().toLowerCase();
+    if (name !== "" && !otherSelected.includes(name)) {
+      otherSelected.push(name);
+    }
+  });
+
+  otherInput.value = "";
+  drawOtherChips();
+});
+
 // ---------- Screen 2: menu ----------
 
 function drawMenu() {
-  const myAllergens = getProfile().allergens;
+  const profile = getProfile();
   menuList.innerHTML = "";
 
   RESTAURANT.menu.forEach(function (dish) {
     // Allergens in this dish that the customer is allergic to
     const danger = dish.allergens.filter(function (id) {
-      return myAllergens.includes(id);
+      return profile.allergens.includes(id);
     });
+    const otherDanger = otherAllergiesIn(dish, profile.otherAllergies);
+
+    const warningNames = allergenNames(danger).concat(otherDanger.map(capitalize));
+    const hasWarning = warningNames.length > 0;
 
     const card = document.createElement("div");
-    card.className = "card dish" + (danger.length > 0 ? " warn" : "");
+    card.className = "card dish" + (hasWarning ? " warn" : "");
 
     let html =
       '<div class="dish-top"><h3>' + dish.name + "</h3>" +
       '<span class="price">' + formatPrice(dish.price) + "</span></div>" +
-      '<p class="muted">' + dish.description + "</p>";
+      '<p class="muted">' + dish.description + "</p>" +
+      '<p class="ingredients">Ingredients: ' + dish.ingredients.join(", ") + "</p>";
 
-    if (danger.length > 0) {
-      html += '<p class="warning">⚠ Contains ' + allergenNames(danger) + " — you're allergic</p>";
+    if (hasWarning) {
+      html += '<p class="warning">⚠ Contains ' + escapeHtml(warningNames.join(", ")) +
+              " — you're allergic</p>";
     }
 
     html += '<div class="dish-bottom"><div class="chips"></div>' +
@@ -131,7 +197,7 @@ function drawMenu() {
 
     const addBtn = card.querySelector("button");
     addBtn.addEventListener("click", function () {
-      addToCart(dish, danger.length > 0, addBtn);
+      addToCart(dish, hasWarning, addBtn);
     });
 
     menuList.appendChild(card);
@@ -208,9 +274,11 @@ function drawCart() {
   document.getElementById("cart-total").textContent = formatPrice(cartTotal());
 
   // Remind the customer what the kitchen will see
-  const myAllergens = getProfile().allergens;
-  makeChips(document.getElementById("cart-chips"), myAllergens, "No allergies selected");
-  document.getElementById("cart-alert-text").textContent = myAllergens.length > 0
+  const profile = getProfile();
+  const hasAny = profile.allergens.length > 0 || profile.otherAllergies.length > 0;
+  makeChips(document.getElementById("cart-chips"), profile.allergens,
+            "No allergies selected", profile.otherAllergies);
+  document.getElementById("cart-alert-text").textContent = hasAny
     ? "The kitchen will be alerted about these allergies"
     : "You haven't told us about any allergies.";
 
@@ -220,13 +288,15 @@ function drawCart() {
 // ---------- Placing the order ----------
 
 function sendOrder() {
+  const profile = getProfile();
   const order = placeOrder({
     id: newOrderId(),
     items: cart.map(function (i) {
       const dish = getDish(i.dishId);
       return { dishId: dish.id, name: dish.name, price: dish.price, qty: i.qty };
     }),
-    allergens: getProfile().allergens.slice(),
+    allergens: profile.allergens.slice(),
+    otherAllergies: profile.otherAllergies.slice(),
     status: "waiting",
     separateArea: null,
     time: new Date().toISOString()
@@ -247,10 +317,11 @@ function drawStatus() {
   if (!order) return;
 
   document.getElementById("status-title").textContent = "Order " + order.id;
+  const hasAny = order.allergens.length > 0 || order.otherAllergies.length > 0;
 
   if (order.status === "confirmed") {
     const area = order.separateArea ? "Yes" : "No — shared kitchen area";
-    const title = order.allergens.length > 0
+    const title = hasAny
       ? "✓ Kitchen confirmed your order is safe for:"
       : "✓ Kitchen confirmed your order";
     box.innerHTML =
@@ -269,7 +340,7 @@ function drawStatus() {
       "</div>";
   }
 
-  makeChips(box.querySelector(".chips"), order.allergens, "");
+  makeChips(box.querySelector(".chips"), order.allergens, "No allergies selected", order.otherAllergies);
 }
 
 // ---------- Switching screens ----------
@@ -284,7 +355,8 @@ function showScreen(name) {
   myAllergies.classList.toggle("hidden", name !== "menu");
 
   if (name === "menu") {
-    makeChips(myChips, getProfile().allergens, "None");
+    const profile = getProfile();
+    makeChips(myChips, profile.allergens, "None", profile.otherAllergies);
     drawMenu();
   }
   if (name === "cart") drawCart();
@@ -297,14 +369,16 @@ function showScreen(name) {
 // ---------- Buttons ----------
 
 document.getElementById("save-btn").addEventListener("click", function () {
-  saveProfile({ allergens: selected.slice() });
+  saveProfile({ allergens: selected.slice(), otherAllergies: otherSelected.slice() });
   showScreen("menu");
 });
 
 // Edit link: go back to the grid with the saved choices ticked
 document.getElementById("edit-link").addEventListener("click", function (e) {
   e.preventDefault();
-  selected = getProfile().allergens.slice();
+  const profile = getProfile();
+  selected = profile.allergens.slice();
+  otherSelected = profile.otherAllergies.slice();
   drawGrid();
   showScreen("profile");
 });
@@ -336,20 +410,19 @@ document.getElementById("restaurant-name").textContent = RESTAURANT.name;
 document.getElementById("restaurant-location").textContent = RESTAURANT.location;
 
 const saved = getProfile();
+selected = saved.allergens.slice();
+otherSelected = saved.otherAllergies.slice();
+drawGrid();
+
 lastOrderId = sessionStorage.getItem("safebite_last_order");
 const lastOrder = getOrders().find(function (o) { return o.id === lastOrderId; });
 
 if (saved.savedAt && lastOrder) {
   // Page was refreshed after ordering: show that order's status again
-  selected = saved.allergens.slice();
-  drawGrid();
   showScreen("status");
 } else if (saved.savedAt) {
   // Already has a profile: skip straight to the menu
-  selected = saved.allergens.slice();
-  drawGrid();
   showScreen("menu");
 } else {
-  drawGrid();
   showScreen("profile");
 }

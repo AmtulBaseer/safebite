@@ -19,6 +19,10 @@ guarantee the kitchen sees it or acts on it.
 
 The 8 allergens: Peanut, Tree Nuts, Dairy, Egg, Gluten, Soy, Sesame, Shellfish.
 
+Customers can also type in other ingredients they're allergic to (e.g. avocado,
+kiwi, mustard). The menu checks these against each dish's ingredient list, and
+the station shows them as a blinking "Also avoid" line on its screen.
+
 ## How to use the demo
 
 1. Open **demo.html**. It shows the customer's phone on the left and the kitchen station on the right.

@@ -41,6 +41,18 @@ function knownAllergens(ids) {
   return (ids || []).filter(function (id) { return getAllergen(id); });
 }
 
+// "avocado" -> "Avocado"
+function capitalize(text) {
+  return text.charAt(0).toUpperCase() + text.slice(1);
+}
+
+// Make typed text safe to put inside innerHTML
+function escapeHtml(text) {
+  const div = document.createElement("div");
+  div.textContent = text;
+  return div.innerHTML;
+}
+
 // Our made-up restaurant
 const RESTAURANT = {
   name: "Spice Souk Kitchen",
@@ -51,56 +63,64 @@ const RESTAURANT = {
       name: "Chicken Satay Skewers",
       description: "Grilled chicken skewers with a rich peanut dipping sauce.",
       price: 32,
-      allergens: ["peanut", "sesame"]
+      allergens: ["peanut", "sesame"],
+      ingredients: ["chicken", "peanut sauce", "coconut milk", "sesame seeds", "lime"]
     },
     {
       id: "d2",
       name: "Beef & Broccoli Stir-Fry",
       description: "Wok-fried beef and broccoli in a ginger soy sauce.",
       price: 44,
-      allergens: ["soy", "gluten"]
+      allergens: ["soy", "gluten"],
+      ingredients: ["beef", "broccoli", "soy sauce", "ginger", "garlic"]
     },
     {
       id: "d3",
       name: "Prawn Pad Thai",
       description: "Rice noodles with prawns, egg and crushed peanuts.",
       price: 42,
-      allergens: ["peanut", "shellfish", "egg"]
+      allergens: ["peanut", "shellfish", "egg"],
+      ingredients: ["rice noodles", "prawns", "egg", "peanuts", "bean sprouts", "lime"]
     },
     {
       id: "d4",
       name: "Margherita Flatbread",
       description: "Stone-baked flatbread with tomato, mozzarella and basil.",
       price: 35,
-      allergens: ["gluten", "dairy"]
+      allergens: ["gluten", "dairy"],
+      ingredients: ["flatbread", "tomato", "mozzarella", "basil"]
     },
     {
       id: "d5",
       name: "Crispy Tofu Rice Bowl",
-      description: "Golden tofu, edamame and rice with a sesame-soy glaze.",
+      description: "Golden tofu, edamame, avocado and rice with a sesame-soy glaze.",
       price: 36,
-      allergens: ["soy", "sesame"]
+      allergens: ["soy", "sesame"],
+      ingredients: ["tofu", "edamame", "avocado", "rice", "sesame-soy glaze"]
     },
     {
       id: "d6",
       name: "Grilled Chicken & Saffron Rice",
-      description: "Herb-marinated chicken breast served with saffron rice.",
+      description: "Herb and mustard marinated chicken served with saffron rice.",
       price: 38,
-      allergens: []
+      allergens: [],
+      ingredients: ["chicken", "mustard", "saffron rice", "lemon", "herbs"]
     },
     {
       id: "d7",
       name: "Pistachio Kunafa",
       description: "Sweet cheese pastry topped with pistachios and syrup.",
       price: 30,
-      allergens: ["tree-nuts", "dairy", "gluten"]
+      allergens: ["tree-nuts", "dairy", "gluten"],
+      ingredients: ["kunafa pastry", "sweet cheese", "pistachios", "sugar syrup"]
     },
     {
       id: "d8",
       name: "Fresh Fruit Bowl",
-      description: "Seasonal fruit with fresh mint and a squeeze of lime.",
+      description: "Mango, kiwi and strawberries with fresh mint and lime.",
       price: 18,
-      allergens: []
+      allergens: [],
+      ingredients: ["mango", "kiwi", "strawberries", "mint", "lime"]
     }
   ]
 };

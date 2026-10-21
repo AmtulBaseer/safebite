@@ -28,7 +28,8 @@ function writeData(key, value) {
 // ---- Profile (the customer's allergies) ----
 
 function saveProfile(profile) {
-  // profile looks like: { name: "Sara", allergens: ["peanut", "soy"] }
+  // profile looks like:
+  // { name: "Sara", allergens: ["peanut", "soy"], otherAllergies: ["avocado"] }
   // savedAt lets pages tell "never saved" apart from "saved with no allergies"
   profile.savedAt = new Date().toISOString();
   writeData(PROFILE_KEY, profile);
@@ -38,6 +39,7 @@ function saveProfile(profile) {
 function getProfile() {
   const profile = readData(PROFILE_KEY, { name: "", allergens: [] });
   profile.allergens = knownAllergens(profile.allergens);
+  profile.otherAllergies = profile.otherAllergies || []; // older profiles don't have it
   return profile;
 }
 
@@ -47,6 +49,7 @@ function getOrders() {
   const orders = readData(ORDERS_KEY, []);
   orders.forEach(function (o) {
     o.allergens = knownAllergens(o.allergens);
+    o.otherAllergies = o.otherAllergies || [];
   });
   return orders;
 }

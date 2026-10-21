@@ -199,6 +199,58 @@ main {
   color: var(--text);
 }
 
+/* Grey chip for allergies the customer typed in */
+.tag.other {
+  background: #757575;
+}
+
+.chip-remove {
+  padding: 0 2px;
+  border: none;
+  background: none;
+  color: white;
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+/* "Other ingredients" box on the profile screen */
+.other-allergies {
+  margin-top: 8px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.other-allergies h3 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.other-allergies p {
+  margin: 4px 0 10px;
+}
+
+.other-form {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.other-form input {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 1rem;
+}
+
+/* Small ingredient list on each dish card */
+.dish .ingredients {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
 .muted {
   color: var(--muted);
 }
@@ -510,6 +562,17 @@ main {
 
 .lcd .keep-out {
   color: #FFB74D;
+}
+
+/* Other allergies: blinks at the same speed as the buttons (1s) */
+.lcd .also-avoid {
+  color: #FF8A80;
+  font-weight: bold;
+  animation: text-blink 1s ease-in-out infinite;
+}
+
+@keyframes text-blink {
+  50% { opacity: 0.2; }
 }
 
 /* Blinking cursor on the idle screen */
