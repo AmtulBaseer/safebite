@@ -68,10 +68,15 @@
 
     <!-- Screen 3: menu of one restaurant -->
     <section id="menu-screen" class="screen hidden">
-      <a href="#" id="back-to-list" class="back-link">← All restaurants</a>
-      <h2 id="restaurant-name"></h2>
-      <p id="restaurant-location" class="muted"></p>
-      <div id="restaurant-station"></div>
+      <a href="#" id="back-to-list" class="back-link">← Back to restaurants</a>
+      <div id="restaurant-header"></div>
+
+      <!-- Show all dishes / only the safe ones -->
+      <div class="dish-filter">
+        <button id="show-all-btn" class="active">Show all dishes</button>
+        <button id="only-safe-btn">Only safe for me</button>
+      </div>
+
       <div id="menu-list"></div>
     </section>
 
@@ -79,6 +84,7 @@
     <section id="cart-screen" class="screen hidden">
       <a href="#" id="back-to-menu" class="back-link">← Back to menu</a>
       <h2>Your cart</h2>
+      <p id="cart-restaurant" class="muted"></p>
       <div id="cart-list"></div>
       <div class="cart-total">
         <span>Total</span>
@@ -89,6 +95,11 @@
         <div id="cart-chips"></div>
         <p id="cart-alert-text"></p>
       </div>
+
+      <!-- Shown when the restaurant has no Allergen Station -->
+      <p id="no-station-warning" class="no-station-warning hidden">
+        ⚠ This restaurant doesn't use the Allergen Station, so the kitchen won't receive a live alert.
+      </p>
 
       <button id="place-btn" class="btn btn-block">Place order</button>
     </section>

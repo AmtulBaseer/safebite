@@ -18,6 +18,8 @@ const otherInput = document.getElementById("other-input");
 const params = new URLSearchParams(window.location.search);
 let currentRestaurant = getRestaurant(params.get("restaurant")) || RESTAURANTS[0];
 let sortBy = "safe";      // restaurant list order: "safe" or "rating"
+let cartRestaurant = null; // the restaurant the cart's dishes come from
+let onlySafe = false;     // menu toggle: hide dishes with my allergens
 
 // ---------- Small helpers ----------
 
@@ -25,8 +27,15 @@ function formatPrice(amount) {
   return "AED " + amount.toFixed(2);
 }
 
+// Find a dish by id in any restaurant (the cart may be from another one)
 function getDish(id) {
-  return currentRestaurant.menu.find(function (d) { return d.id === id; });
+  let found = null;
+  RESTAURANTS.forEach(function (r) {
+    r.menu.forEach(function (d) {
+      if (d.id === id) found = d;
+    });
+  });
+  return found;
 }
 
 // "peanut", "soy" -> ["Peanut", "Soy"]
@@ -264,33 +273,42 @@ function drawRestaurantList() {
   });
 }
 
-// Open a restaurant's menu (the cart only holds one restaurant at a time)
+// Open a restaurant's page
 function openRestaurant(restaurant) {
-  if (cart.length > 0 && restaurant.id !== currentRestaurant.id) {
-    if (!confirm("Your cart has items from " + currentRestaurant.name + ". Clear it and start a new order?")) {
-      return;
-    }
-    cart = [];
-  }
   currentRestaurant = restaurant;
   showScreen("menu");
 }
 
-// ---------- Screen 3: menu ----------
+// ---------- Screen 3: restaurant page ----------
+
+function drawRestaurantHeader() {
+  const r = currentRestaurant;
+  document.getElementById("restaurant-header").innerHTML =
+    '<div class="restaurant-header">' +
+      '<span class="logo" style="background:' + r.logoColor + '">' + r.logo + "</span>" +
+      "<div>" +
+        "<h2>" + r.name + "</h2>" +
+        '<p class="meta">' + r.cuisine + ' · <span class="rating">★ ' + r.rating.toFixed(1) + "</span></p>" +
+        '<p class="meta">' + r.deliveryTime + " · " + r.emirate + " · " + r.priceLevel + "</p>" +
+      "</div>" +
+    "</div>" +
+    '<p class="restaurant-desc">' + r.description + "</p>" +
+    stationHtml(r);
+}
 
 function drawMenu() {
   const profile = getProfile();
   menuList.innerHTML = "";
+  drawRestaurantHeader();
 
-  document.getElementById("restaurant-name").textContent =
-    currentRestaurant.logo + " " + currentRestaurant.name;
-  document.getElementById("restaurant-location").textContent =
-    currentRestaurant.cuisine + " · " + currentRestaurant.emirate + " · " + currentRestaurant.deliveryTime;
-  document.getElementById("restaurant-station").innerHTML = stationHtml(currentRestaurant);
+  // Toggle buttons
+  document.getElementById("show-all-btn").classList.toggle("active", !onlySafe);
+  document.getElementById("only-safe-btn").classList.toggle("active", onlySafe);
 
   currentRestaurant.menu.forEach(function (dish) {
     const warningNames = dishWarnings(dish, profile);
     const hasWarning = warningNames.length > 0;
+    if (onlySafe && hasWarning) return; // hide it
 
     const card = document.createElement("div");
     card.className = "card dish" + (hasWarning ? " warn" : "");
@@ -319,12 +337,25 @@ function drawMenu() {
 
     menuList.appendChild(card);
   });
+
+  if (menuList.children.length === 0) {
+    menuList.innerHTML = '<p class="muted">No dishes here are safe for your allergies.</p>';
+  }
 }
 
 function addToCart(dish, hasWarning, btn) {
   if (hasWarning && !confirm("This dish contains an allergen you selected. Add anyway?")) {
     return;
   }
+
+  // The cart can only hold dishes from one restaurant
+  if (cart.length > 0 && cartRestaurant.id !== currentRestaurant.id) {
+    if (!confirm("Your cart has dishes from " + cartRestaurant.name + ". Start a new cart?")) {
+      return;
+    }
+    cart = [];
+  }
+  cartRestaurant = currentRestaurant;
 
   const item = cart.find(function (i) { return i.dishId === dish.id; });
   if (item) {
@@ -389,15 +420,23 @@ function drawCart() {
   });
 
   document.getElementById("cart-total").textContent = formatPrice(cartTotal());
+  document.getElementById("cart-restaurant").textContent =
+    cart.length > 0 ? "From " + cartRestaurant.name : "";
 
   // Remind the customer what the kitchen will see
   const profile = getProfile();
   const hasAny = profile.allergens.length > 0 || profile.otherAllergies.length > 0;
+  const hasStation = cart.length === 0 || cartRestaurant.hasStation;
   makeChips(document.getElementById("cart-chips"), profile.allergens,
             "No allergies selected", profile.otherAllergies);
-  document.getElementById("cart-alert-text").textContent = hasAny
-    ? "The kitchen will be alerted about these allergies"
-    : "You haven't told us about any allergies.";
+
+  let alertText = "You haven't told us about any allergies.";
+  if (hasAny && hasStation) alertText = "The kitchen will be alerted about these allergies";
+  if (hasAny && !hasStation) alertText = "Your allergies are saved with the order";
+  document.getElementById("cart-alert-text").textContent = alertText;
+
+  // Warn before ordering from a restaurant without a station
+  document.getElementById("no-station-warning").classList.toggle("hidden", hasStation);
 
   document.getElementById("place-btn").disabled = cart.length === 0;
 }
@@ -408,20 +447,22 @@ function sendOrder() {
   const profile = getProfile();
   const order = placeOrder({
     id: newOrderId(),
-    restaurantId: currentRestaurant.id,
-    restaurantName: currentRestaurant.name,
+    restaurantId: cartRestaurant.id,
+    restaurantName: cartRestaurant.name,
     items: cart.map(function (i) {
       const dish = getDish(i.dishId);
       return { dishId: dish.id, name: dish.name, price: dish.price, qty: i.qty };
     }),
     allergens: profile.allergens.slice(),
     otherAllergies: profile.otherAllergies.slice(),
-    status: "waiting",
+    // No station = the kitchen gets no live alert, so station.html ignores it
+    status: cartRestaurant.hasStation ? "waiting" : "no-station",
     separateArea: null,
     time: new Date().toISOString()
   });
 
   cart = [];
+  currentRestaurant = cartRestaurant; // "Back to menu" goes to where they ordered
   lastOrderId = order.id;
   // Remember it for this tab, so a page refresh doesn't lose the order
   sessionStorage.setItem("safebite_last_order", order.id);
@@ -437,8 +478,18 @@ function drawStatus() {
 
   document.getElementById("status-title").textContent = "Order " + order.id;
   const hasAny = order.allergens.length > 0 || order.otherAllergies.length > 0;
+  const from = order.restaurantName ? '<p class="muted">From ' + order.restaurantName + "</p>" : "";
 
-  if (order.status === "confirmed") {
+  if (order.status === "no-station") {
+    box.innerHTML =
+      '<div class="card status-nostation">' +
+      "<p><strong>Order placed</strong></p>" + from +
+      "<p>This restaurant doesn't use the Allergen Station, so the kitchen won't receive a live alert. " +
+      "Please call the restaurant to double-check your allergies.</p>" +
+      '<p class="muted">Your allergies:</p>' +
+      '<div class="chips"></div>' +
+      "</div>";
+  } else if (order.status === "confirmed") {
     const area = order.separateArea ? "Yes" : "No (shared kitchen area)";
     const title = hasAny
       ? "✓ Kitchen confirmed your order is safe for:"
@@ -446,14 +497,14 @@ function drawStatus() {
     box.innerHTML =
       '<div class="card status-ok">' +
       '<p class="ok-title">' + title + "</p>" +
-      '<div class="chips"></div>' +
+      '<div class="chips"></div>' + from +
       "<p>Prepared in a separate area: <strong>" + area + "</strong></p>" +
       "</div>";
   } else {
     box.innerHTML =
       '<div class="card status-waiting">' +
       '<div class="loader"><span></span><span></span><span></span></div>' +
-      "<p><strong>Waiting for the kitchen to check your allergies…</strong></p>" +
+      "<p><strong>Waiting for the kitchen to check your allergies…</strong></p>" + from +
       '<p class="muted">Allergies sent to the kitchen:</p>' +
       '<div class="chips"></div>' +
       "</div>";
@@ -512,6 +563,16 @@ cartBar.addEventListener("click", function () { showScreen("cart"); });
 document.getElementById("back-to-list").addEventListener("click", function (e) {
   e.preventDefault();
   showScreen("restaurants");
+});
+
+document.getElementById("show-all-btn").addEventListener("click", function () {
+  onlySafe = false;
+  drawMenu();
+});
+
+document.getElementById("only-safe-btn").addEventListener("click", function () {
+  onlySafe = true;
+  drawMenu();
 });
 
 document.getElementById("sort-select").addEventListener("change", function () {

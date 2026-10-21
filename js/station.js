@@ -51,7 +51,11 @@ function render() {
 
   // Order number, time and dishes on the screen
   const time = new Date(order.time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-  let html = '<div class="order-no">ORDER ' + order.id + " · " + time + "</div>";
+  let html = "";
+  if (order.restaurantName) {
+    html += '<div class="lcd-restaurant">' + order.restaurantName.toUpperCase() + "</div>";
+  }
+  html += '<div class="order-no">ORDER ' + order.id + " · " + time + "</div>";
 
   order.items.forEach(function (item) {
     html += "<div>" + item.qty + "× " + item.name + "</div>";

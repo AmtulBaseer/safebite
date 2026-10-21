@@ -564,6 +564,12 @@ main {
   color: #FFB74D;
 }
 
+.lcd .lcd-restaurant {
+  color: #B2EBF2;
+  font-size: 0.75rem;
+  letter-spacing: 1px;
+}
+
 /* Other allergies: blinks at the same speed as the buttons (1s) */
 .lcd .also-avoid {
   color: #FF8A80;
@@ -1150,4 +1156,86 @@ a.btn {
 
 #restaurant-station {
   margin-bottom: 12px;
+}
+
+/* ---- Restaurant page ---- */
+
+.restaurant-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.restaurant-header .logo {
+  flex-shrink: 0;
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.1rem;
+}
+
+.restaurant-header h2 {
+  margin: 0 0 2px;
+}
+
+.restaurant-header .meta {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.restaurant-desc {
+  margin: 12px 0 8px;
+  font-size: 0.95rem;
+}
+
+/* "Show all dishes / Only safe for me" toggle */
+.dish-filter {
+  display: flex;
+  margin: 16px 0;
+  padding: 4px;
+  border-radius: var(--radius);
+  background: var(--bg);
+}
+
+.dish-filter button {
+  flex: 1;
+  padding: 8px;
+  border: none;
+  border-radius: 8px;
+  background: none;
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.dish-filter button.active {
+  background: white;
+  color: var(--primary-dark);
+  box-shadow: var(--shadow);
+}
+
+/* Warning in the cart for restaurants without a station */
+.no-station-warning {
+  margin: 12px 0 0;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  background: #FFF3E0;
+  color: #E65100;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+/* Status card for orders without a station */
+.status-nostation {
+  border: 2px solid #FB8C00;
+  background: #FFF8E1;
+}
+
+.status-nostation p {
+  margin: 6px 0;
 }
